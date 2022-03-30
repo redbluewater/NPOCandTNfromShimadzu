@@ -9,3 +9,5 @@ We export text files from the Shimadzu TOC/TN instrument and process the file us
 * name of the file exported from the Shimadzu (line 6)
 * the weight of KHP and KNO3 in the concentrated stock solution (lines 10 and 11)
 * the weight of concentrated stock diluted into a 100 ml flask
+
+Once the edits are done, type `runFxn` into the MATLAB command window.
