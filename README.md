@@ -11,3 +11,7 @@ We export text files from the Shimadzu TOC/TN instrument and process the file us
 * the weight of concentrated stock diluted into a 100 ml flask
 
 Once the edits are done, type `runFxn` into the MATLAB command window.
+
+update, Krista Longnecker\
+23 January 2023
+I added two files (`runFxn_smallVol.m` and `riRawData_smallVol_v1.m` to process the Shimadzu data from a project that requires manual injections of small volumes. Because of the sample limitations, I am forcing the instrument to do a preset number of samples. This requires slightly different processing to calculate the mean peak areas.
