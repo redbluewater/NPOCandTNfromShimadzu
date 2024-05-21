@@ -1,7 +1,7 @@
 # NPOCandTNfromShimadzu
 MATLAB code to process NPOC and TN data from a Shimadzu TOC/TN instrument\
 Krista Longnecker\
-29 March 2021
+29 March 2021; updated 21 May 2024 
 
 This code requires MATLAB and is known to work on MATLAB version 2019b. It probably works on older and newer versions of MATLAB. There are three files, `runFxn.m`, `SampleData.txt`, and `riRawData_function_v4.m`. You should only need to edit runFxn.m and the SampleData.txt can be used to test that everything has worked in MATLAB.
 
@@ -15,3 +15,7 @@ Once the edits are done, type `runFxn` into the MATLAB command window.
 update, Krista Longnecker\
 23 January 2023
 I added two files (`runFxn_smallVol.m` and `riRawData_smallVol_v1.m` to process the Shimadzu data from a project that requires manual injections of small volumes. Because of the sample limitations, I am forcing the instrument to do a preset number of samples. This requires slightly different processing to calculate the mean peak areas.
+
+update, Krista Longnecker\
+21 May 2024
+Updated runFxn.m to allow text files with only partial datafiles (useful for testing runs on instrument). I also added runFxn_NPOConly_v2.m for sample runs when I am only collecting NPOC data on the instrument 
