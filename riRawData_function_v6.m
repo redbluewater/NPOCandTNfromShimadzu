@@ -15,6 +15,7 @@ function riRawData_function_v5(FileToOpen,standardWeight,stdCarbon,stdNitrogen,a
 %KL 4/11/2024 corrected excluded points on standard curve
 %KL 5/21/2024 fix the long time issue where this requires all samples with
 %data in text file
+%KL 9/9/2024 change to using the dilution information from the instrument
 
 %what will today's data be called? strip off the .txt extension
 r = regexp(FileToOpen,'.txt','start');
@@ -65,34 +66,32 @@ end
 
 function [concentrationOut,FullSampleName,UseDilution,UseInjectVol] = doTheMath(FileToOpen,calcVariable,useStandard,appendL)
     warning('off','MATLAB:table:ModifiedAndSavedVarnames')
-    %T = readtable(FileToOpen);
-    opts = delimitedTextImportOptions;
-    opts.DataLines = 7;
-    opts.VariableNamesLine = 6;
-    T = readtable(FileToOpen,opts); 
-    %this next bit is an annoying way of doing this, but it workds
-    T.Area = str2double(T.Area); 
-    T.MeanArea = str2double(T.MeanArea); 
-    T.Excluded = str2double(T.Excluded); 
-    T.Inj_Vol_ = str2double(T.Inj_Vol_); 
-    T.Auto_Dil_ = str2double(T.Auto_Dil_); 
-    %then trim T to only include rows with data...
-    i = isnan(T.Area);
-    T(i,:) = []; clear i
+    if verLessThan('matlab','9.14') %not exactly sure where the code will break, but this is a start
+        %for older versions of MATLAB you have to trim the empty rows out
+        %of the text file before running this (or re-write the next section
+        %a different way)
+        T = readtable(FileToOpen,'delimiter',',');
+    else
+        opts = delimitedTextImportOptions;
+        opts.DataLines = 7;
+        opts.VariableNamesLine = 6;
+        T = readtable(FileToOpen,opts); 
+        %this next bit is an annoying way of doing this, but it workds
+        T.Area = str2double(T.Area); 
+        T.MeanArea = str2double(T.MeanArea); 
+        T.Excluded = str2double(T.Excluded); 
+        T.Inj_Vol_ = str2double(T.Inj_Vol_); 
+        T.Auto_Dil_ = str2double(T.Auto_Dil_); 
+        %then trim T to only include rows with data...
+        i = isnan(T.Area);
+        T(i,:) = []; clear i
+    end
+
     
     %use this step to figure out what I am searching for in the data file
     atype = strcmp(T.Analysis_Inj__,calcVariable);
 
-%     % find the various standards:
-%     sfn = {strcat('S30',appendL),strcat('S15',appendL),strcat('S10',appendL),strcat('S7',appendL)};%need to match names in data run
-%     for a = 1:length(sfn)
-%         s = strcmp(T.SampleName,sfn{a});
-%         ks = [ks ; find(s == 1 & T.Excluded == 0 & atype == 1)];
-%         clear s
-%     end
-%     clear a sfn
     st = startsWith(T.SampleName,'S');
-    %sc = contains(T.SampleName,appendL);
     sc = endsWith(T.SampleName,appendL); %better choice 4/10/2024
     ks = find(st==1 & sc==1 &atype==1 & T.Excluded==0); %updated 4/11/2024
 
@@ -170,7 +169,11 @@ function [concentrationOut,FullSampleName,UseDilution,UseInjectVol] = doTheMath(
 
     %now need to convert the area under the curve data (NPOCarea) torunF
     %concentrations of carbon using the calibration curve 
-    concentrationOut=(TNarea./slope);
+    %concentrationOut=(TNarea./slope);
+    %change to considering the dilution information for the samples:
+    concentrationOut = ((TNarea.*UseDilution)./slope);
+    %added for Sarah 5/9/2025
+    %concentrationOut = ((TNarea.*UseDilution)./slope) - yintercept;
     averageBlank=BlankArea./slope; %not using this, keep for historical purposes
 end
 
